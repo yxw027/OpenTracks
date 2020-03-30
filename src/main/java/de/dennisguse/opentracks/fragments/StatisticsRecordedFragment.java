@@ -88,6 +88,9 @@ public class StatisticsRecordedFragment extends Fragment implements TrackDataLis
     private TextView speedMovingValue;
     private TextView speedMovingUnit;
 
+    private TextView elevationTotalGainValue;
+    private TextView elevationTotalGainUnit;
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -113,6 +116,11 @@ public class StatisticsRecordedFragment extends Fragment implements TrackDataLis
         speedMovingLabel = view.findViewById(R.id.stats_moving_speed_label);
         speedMovingValue = view.findViewById(R.id.stats_moving_speed_value);
         speedMovingUnit = view.findViewById(R.id.stats_moving_speed_unit);
+
+        elevationCurrentGroup = view.findViewById(R.id.stats_elevation_current_group);
+
+        elevationTotalGainValue = view.findViewById(R.id.stats_elevation_gain_value);
+        elevationTotalGainUnit = view.findViewById(R.id.stats_elevation_gain_unit);
     }
 
     @Override
@@ -178,6 +186,9 @@ public class StatisticsRecordedFragment extends Fragment implements TrackDataLis
         speedMovingLabel = null;
         speedMovingValue = null;
         speedMovingUnit = null;
+
+        elevationTotalGainValue = null;
+        elevationTotalGainUnit = null;
     }
 
     @Override
@@ -290,6 +301,15 @@ public class StatisticsRecordedFragment extends Fragment implements TrackDataLis
             Pair<String, String> parts = StringUtils.getSpeedParts(getContext(), speed, metricUnits, reportSpeed);
             speedMovingValue.setText(parts.first);
             speedMovingUnit.setText(parts.second);
+        }
+
+        // Set elevation gain
+        {
+            double elevationGain_m = trackStatistics != null ? trackStatistics.getTotalElevationGain() : 0f;
+
+            Pair<String, String> parts = StringUtils.formatElevation(getContext(), elevationGain_m, metricUnits);
+            elevationTotalGainValue.setText(parts.first);
+            elevationTotalGainUnit.setText(parts.second);
         }
     }
 }
