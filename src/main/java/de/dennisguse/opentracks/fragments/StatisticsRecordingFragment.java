@@ -428,7 +428,7 @@ public class StatisticsRecordingFragment extends Fragment implements TrackDataLi
         setCadenceSensorData(sensorDataSet);
         setSpeedSensorData(sensorDataSet, isSelectedTrackRecording());
 
-        setElevationGainFromSensor(elevationGain_m);
+        setTotalElevationGain(elevationGain_m);
     }
 
     private void setHeartRateSensorData(SensorDataSet sensorDataSet) {
@@ -478,22 +478,9 @@ public class StatisticsRecordingFragment extends Fragment implements TrackDataLi
     }
 
     // Set elevation gain
-    public void setTotalElevationGain(Float elevationGain_m) {
+    private void setTotalElevationGain(Float elevationGain_m) {
         boolean metricUnits = PreferencesUtils.isMetricUnits(getContext());
 
-        if (elevationGain_m == null) {
-            elevationGain_m = 0f;
-        }
-        if (lastTrackStatistics != null) {
-            elevationGain_m += (float) lastTrackStatistics.getTotalElevationGain();
-        }
-
-        Pair<String, String> parts = StringUtils.formatElevation(getContext(), elevationGain_m, metricUnits);
-        elevationTotalGainValue.setText(parts.first);
-        elevationTotalGainUnit.setText(parts.second);
-    }
-
-    public void setElevationGainFromSensor(Float elevationGain_m) {
         float totalElevationGain = 0;
         if (elevationGain_m != null) {
             totalElevationGain = elevationGain_m;
@@ -501,7 +488,10 @@ public class StatisticsRecordingFragment extends Fragment implements TrackDataLi
         if (lastTrackStatistics != null) {
             totalElevationGain += (float) lastTrackStatistics.getTotalElevationGain();
         }
-        setTotalElevationGain(totalElevationGain);
+
+        Pair<String, String> parts = StringUtils.formatElevation(getContext(), totalElevationGain, metricUnits);
+        elevationTotalGainValue.setText(parts.first);
+        elevationTotalGainUnit.setText(parts.second);
     }
 
     /**
