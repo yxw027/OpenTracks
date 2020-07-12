@@ -39,7 +39,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
-import de.dennisguse.opentracks.content.data.TestDataUtil;
 import de.dennisguse.opentracks.content.data.Track;
 import de.dennisguse.opentracks.content.data.TrackPoint;
 import de.dennisguse.opentracks.content.data.TrackPointsColumns;
@@ -206,7 +205,7 @@ public class CustomContentProviderUtilsTest {
     public void testDeleteAllTracks() {
         // Insert track, points and waypoint at first.
         long trackId = System.currentTimeMillis();
-        Track track = TestDataUtil.createTrackAndInsert(contentProviderUtils, trackId, 10);
+        Track track = TestDataUtil.createTrackAndInsert(contentProviderUtils, trackId);
 
         Waypoint waypoint = new Waypoint(contentProviderUtils.getLastValidTrackPoint(trackId));
         contentProviderUtils.insertWaypoint(waypoint);
@@ -236,7 +235,7 @@ public class CustomContentProviderUtilsTest {
     public void testDeleteAllTracks_withWaypointAndPhoto() throws IOException {
         // Insert track, points and waypoint with photo at first.
         long trackId = System.currentTimeMillis();
-        Track track = TestDataUtil.createTrackAndInsert(contentProviderUtils, trackId, 10);
+        Track track = TestDataUtil.createTrackAndInsert(contentProviderUtils, trackId);
 
         TrackPoint trackPoint = contentProviderUtils.getLastValidTrackPoint(trackId);
         Waypoint waypoint = TestDataUtil.createWaypointWithPhoto(context, trackId, trackPoint.getLocation());
@@ -275,10 +274,10 @@ public class CustomContentProviderUtilsTest {
         // Insert three tracks, points of two tracks and way point of one track.
 
         long trackId = System.currentTimeMillis();
-        TestDataUtil.createTrackAndInsert(contentProviderUtils, trackId, 0);
 
-        TestDataUtil.createTrackAndInsert(contentProviderUtils, trackId + 1, 10);
-        TestDataUtil.createTrackAndInsert(contentProviderUtils, trackId + 2, 10);
+        TestDataUtil.createTrackAndInsert(contentProviderUtils, trackId);
+        TestDataUtil.createTrackAndInsert(contentProviderUtils, trackId + 1);
+        TestDataUtil.createTrackAndInsert(contentProviderUtils, trackId + 2);
 
         Waypoint waypoint = new Waypoint(contentProviderUtils.getLastValidTrackPoint(trackId + 1));
         waypoint.setTrackId(trackId);
@@ -288,7 +287,7 @@ public class CustomContentProviderUtilsTest {
         Cursor tracksCursor = contentResolver.query(TracksColumns.CONTENT_URI, null, null, null, TracksColumns._ID);
         Assert.assertEquals(3, tracksCursor.getCount());
         Cursor tracksPointsCursor = contentResolver.query(TrackPointsColumns.CONTENT_URI_BY_ID, null, null, null, TrackPointsColumns._ID);
-        Assert.assertEquals(20, tracksPointsCursor.getCount());
+        Assert.assertEquals(30, tracksPointsCursor.getCount());
         Cursor waypointCursor = contentResolver.query(WaypointsColumns.CONTENT_URI, null, null, null, WaypointsColumns._ID);
         Assert.assertEquals(1, waypointCursor.getCount());
         // Delete one track.
@@ -309,9 +308,9 @@ public class CustomContentProviderUtilsTest {
     public void testDeleteTrack_withWaypointPhoto() throws IOException {
         // Insert three tracks.
         long trackId = System.currentTimeMillis();
-        TestDataUtil.createTrackAndInsert(contentProviderUtils, trackId, 10);
-        TestDataUtil.createTrackAndInsert(contentProviderUtils, trackId + 1, 10);
-        TestDataUtil.createTrackAndInsert(contentProviderUtils, trackId + 2, 10);
+        TestDataUtil.createTrackAndInsert(contentProviderUtils, trackId);
+        TestDataUtil.createTrackAndInsert(contentProviderUtils, trackId + 1);
+        TestDataUtil.createTrackAndInsert(contentProviderUtils, trackId + 2);
 
         // Insert a waypoint in tracks trackId and trackId + 1.
         TrackPoint trackPoint1 = contentProviderUtils.getLastValidTrackPoint(trackId);
@@ -416,7 +415,7 @@ public class CustomContentProviderUtilsTest {
     @Test
     public void testCreateContentValues_waypoint() {
         long trackId = System.currentTimeMillis();
-        Pair<Track, TrackPoint[]> track = TestDataUtil.createTrack(trackId, 10);
+        Pair<Track, TrackPoint[]> track = TestDataUtil.createTrackWithTrackpoints(trackId);
 
         // Bottom
         long startTime = 1000L;
@@ -491,7 +490,7 @@ public class CustomContentProviderUtilsTest {
     @Test
     public void testDeleteWaypoint_onlyOneWayPoint() {
         long trackId = System.currentTimeMillis();
-        TestDataUtil.createTrackAndInsert(contentProviderUtils, trackId, 10);
+        TestDataUtil.createTrackAndInsert(contentProviderUtils, trackId);
 
         // Insert at first.
         Waypoint waypoint1 = new Waypoint(contentProviderUtils.getLastValidTrackPoint(trackId));
@@ -519,7 +518,7 @@ public class CustomContentProviderUtilsTest {
     @Test
     public void testDeleteWaypoint_onlyOneWayPointWithPhotoUrl() throws IOException {
         long trackId = System.currentTimeMillis();
-        TestDataUtil.createTrackAndInsert(contentProviderUtils, trackId, 10);
+        TestDataUtil.createTrackAndInsert(contentProviderUtils, trackId);
 
         // Insert at first.
         TrackPoint trackPoint = contentProviderUtils.getLastValidTrackPoint(trackId);
@@ -553,9 +552,9 @@ public class CustomContentProviderUtilsTest {
     @Test
     public void testDeleteWaypoint_hasNextWayPoint() {
         long trackId = System.currentTimeMillis();
-        TestDataUtil.createTrackAndInsert(contentProviderUtils, trackId, 10);
+        TestDataUtil.createTrackAndInsert(contentProviderUtils, trackId);
 
-//        Track track = TestDataUtil.createTrackAndInsert(trackId, 10);
+//        Track track = TestDataUtil.createTrackAndInsert(trackId);
 //
 //        TrackStatistics statistics = new TrackStatistics();
 //        statistics.setStartTime_ms(1000L);
@@ -596,7 +595,7 @@ public class CustomContentProviderUtilsTest {
     @Test
     public void testGetNextWaypointNumber() {
         long trackId = System.currentTimeMillis();
-        TestDataUtil.createTrackAndInsert(contentProviderUtils, trackId, 10);
+        TestDataUtil.createTrackAndInsert(contentProviderUtils, trackId);
 
         Waypoint waypoint1 = new Waypoint(contentProviderUtils.getLastValidTrackPoint(trackId));
         waypoint1.setTrackId(trackId);
@@ -621,7 +620,7 @@ public class CustomContentProviderUtilsTest {
     @Test
     public void testInsertAndGetWaypoint() {
         long trackId = System.currentTimeMillis();
-        TestDataUtil.createTrackAndInsert(contentProviderUtils, trackId, 10);
+        TestDataUtil.createTrackAndInsert(contentProviderUtils, trackId);
 
         Waypoint waypoint = new Waypoint(contentProviderUtils.getLastValidTrackPoint(trackId));
         waypoint.setDescription(TEST_DESC);
@@ -637,7 +636,7 @@ public class CustomContentProviderUtilsTest {
     @Test
     public void testUpdateWaypoint() {
         long trackId = System.currentTimeMillis();
-        TestDataUtil.createTrackAndInsert(contentProviderUtils, trackId, 10);
+        TestDataUtil.createTrackAndInsert(contentProviderUtils, trackId);
 
         // Insert at first.
         Waypoint waypoint = new Waypoint(contentProviderUtils.getLastValidTrackPoint(trackId));
@@ -661,7 +660,7 @@ public class CustomContentProviderUtilsTest {
         // tests after update waypoint with photo the photo remains in the storage.
 
         long trackId = System.currentTimeMillis();
-        TestDataUtil.createTrackAndInsert(contentProviderUtils, trackId, 10);
+        TestDataUtil.createTrackAndInsert(contentProviderUtils, trackId);
 
         // Insert at first.
         TrackPoint trackPoint = contentProviderUtils.getLastValidTrackPoint(trackId);
@@ -697,7 +696,7 @@ public class CustomContentProviderUtilsTest {
         // tests after update waypoint if user deletes the photo then file photo is deleted from the storage. Also empty directory is deleted.
 
         long trackId = System.currentTimeMillis();
-        TestDataUtil.createTrackAndInsert(contentProviderUtils, trackId, 10);
+        TestDataUtil.createTrackAndInsert(contentProviderUtils, trackId);
 
         // Insert at first.
         TrackPoint trackPoint = contentProviderUtils.getLastValidTrackPoint(trackId);
@@ -732,7 +731,7 @@ public class CustomContentProviderUtilsTest {
         // tests after update waypoint if user deletes the photo then file photo is deleted from the storage. Directory remains if there are more photos from other waypoints.
 
         long trackId = System.currentTimeMillis();
-        TestDataUtil.createTrackAndInsert(contentProviderUtils, trackId, 10);
+        TestDataUtil.createTrackAndInsert(contentProviderUtils, trackId);
 
         // Insert two waypoints with photos.
         TrackPoint trackPoint = contentProviderUtils.getLastValidTrackPoint(trackId);
@@ -769,13 +768,14 @@ public class CustomContentProviderUtilsTest {
     public void testBulkInsertTrackPoint() {
         // given
         long trackId = System.currentTimeMillis();
-        Pair<Track, TrackPoint[]> track = TestDataUtil.createTrack(trackId, 10);
-        TestDataUtil.insertTrackWithLocations(contentProviderUtils, track.first, track.second);
+        Pair<Track, TrackPoint[]> pair = TestDataUtil.createTrackWithTrackpoints(trackId);
+        contentProviderUtils.insertTrack(pair.first);
+        contentProviderUtils.bulkInsertTrackPoint(pair.second, pair.first.getId());
 
         // when / then
-        contentProviderUtils.bulkInsertTrackPoint(track.second, trackId);
+        contentProviderUtils.bulkInsertTrackPoint(pair.second, trackId);
         Assert.assertEquals(20, contentProviderUtils.getTrackPointCursor(trackId, -1L, 1000, false).getCount());
-        contentProviderUtils.bulkInsertTrackPoint(Arrays.copyOfRange(track.second, 0, 8), trackId);
+        contentProviderUtils.bulkInsertTrackPoint(Arrays.copyOfRange(pair.second, 0, 8), trackId);
         Assert.assertEquals(28, contentProviderUtils.getTrackPointCursor(trackId, -1L, 1000, false).getCount());
     }
 
@@ -830,7 +830,7 @@ public class CustomContentProviderUtilsTest {
     public void testInsertTrackPoint() {
         // Insert track, point at first.
         long trackId = System.currentTimeMillis();
-        Track track = TestDataUtil.createTrackAndInsert(contentProviderUtils, trackId, 10);
+        Track track = TestDataUtil.createTrackAndInsert(contentProviderUtils, trackId);
 
         contentProviderUtils.insertTrackPoint(TestDataUtil.createTrackPoint(22), trackId);
         Assert.assertEquals(11, contentProviderUtils.getTrackPoints(trackId).size());
@@ -840,7 +840,7 @@ public class CustomContentProviderUtilsTest {
     public void testInsertAndLoadTrackPoint() {
         // given
         long trackId = System.currentTimeMillis();
-        Track track = TestDataUtil.createTrackAndInsert(contentProviderUtils, trackId, 10);
+        Track track = TestDataUtil.createTrackAndInsert(contentProviderUtils, trackId);
 
         TrackPoint trackPoint = TestDataUtil.createTrackPoint(5);
         trackPoint.setHeartRate_bpm(1F);
@@ -865,7 +865,7 @@ public class CustomContentProviderUtilsTest {
     public void testGetLastValidTrackPoint() {
         // Insert track, points at first.
         long trackId = System.currentTimeMillis();
-        Track track = TestDataUtil.createTrackAndInsert(contentProviderUtils, trackId, 10);
+        Track track = TestDataUtil.createTrackAndInsert(contentProviderUtils, trackId);
 
         TrackPoint lastTrackPoint = contentProviderUtils.getLastValidTrackPoint(trackId);
         checkLocation(9, lastTrackPoint.getLocation());
@@ -878,7 +878,7 @@ public class CustomContentProviderUtilsTest {
     public void testGetTrackPointCursor_desc() {
         // given
         long trackId = System.currentTimeMillis();
-        Pair<Track, TrackPoint[]> track = TestDataUtil.createTrack(trackId, 10);
+        Pair<Track, TrackPoint[]> track = TestDataUtil.createTrackWithTrackpoints(trackId);
         contentProviderUtils.insertTrack(track.first);
 
         long[] trackpointIds = new long[track.second.length];
@@ -900,7 +900,7 @@ public class CustomContentProviderUtilsTest {
     public void testGetTrackPointCursor_asc() {
         // given
         long trackId = System.currentTimeMillis();
-        Pair<Track, TrackPoint[]> track = TestDataUtil.createTrack(trackId, 10);
+        Pair<Track, TrackPoint[]> track = TestDataUtil.createTrackWithTrackpoints(trackId);
         contentProviderUtils.insertTrack(track.first);
 
         long[] trackpointIds = new long[track.second.length];
@@ -922,7 +922,7 @@ public class CustomContentProviderUtilsTest {
     public void testGetTrackPointLocationIterator_desc() {
         // given
         long trackId = System.currentTimeMillis();
-        Pair<Track, TrackPoint[]> track = TestDataUtil.createTrack(trackId, 10);
+        Pair<Track, TrackPoint[]> track = TestDataUtil.createTrackWithTrackpoints(trackId);
         contentProviderUtils.insertTrack(track.first);
 
         long[] trackpointIds = new long[track.second.length];
@@ -951,7 +951,7 @@ public class CustomContentProviderUtilsTest {
     public void testGetTrackPointLocationIterator_asc() {
         // given
         long trackId = System.currentTimeMillis();
-        Pair<Track, TrackPoint[]> track = TestDataUtil.createTrack(trackId, 10);
+        Pair<Track, TrackPoint[]> track = TestDataUtil.createTrackWithTrackpoints(trackId);
         contentProviderUtils.insertTrack(track.first);
 
         long[] trackpointIds = new long[track.second.length];
@@ -962,23 +962,25 @@ public class CustomContentProviderUtilsTest {
         long startTrackPointId = trackpointIds[0];
 
         // when
-        TrackPointIterator trackPointIterator = contentProviderUtils.getTrackPointLocationIterator(trackId, startTrackPointId, false);
+        try (TrackPointIterator trackPointIterator = contentProviderUtils.getTrackPointLocationIterator(trackId, startTrackPointId, false)) {
+            // then
+            for (int i = 0; i < trackpointIds.length; i++) {
+                Assert.assertTrue(trackPointIterator.hasNext());
+                TrackPoint trackPoint = trackPointIterator.next();
+                Assert.assertEquals(startTrackPointId + i, trackPointIterator.getTrackPointId());
 
-        // then
-        for (int i = 0; i < trackpointIds.length; i++) {
-            Assert.assertTrue(trackPointIterator.hasNext());
-            TrackPoint trackPoint = trackPointIterator.next();
-            Assert.assertEquals(startTrackPointId + i, trackPointIterator.getTrackPointId());
-
-            checkLocation(i, trackPoint.getLocation());
+                checkLocation(i, trackPoint.getLocation());
+            }
+            Assert.assertFalse(trackPointIterator.hasNext());
+        } catch (Exception e) {
+            Assert.fail(e.toString());
         }
-        Assert.assertFalse(trackPointIterator.hasNext());
     }
 
     /**
      * Checks the value of a location.
      *
-     * @param i        the index of this location which created in the method {@link TestDataUtil#createTrack(long, int)}
+     * @param i        the index of this location which created in the method {@link TestDataUtil#createTrackWithTrackpoints(long)}
      * @param location the location to be checked
      */
     private void checkLocation(int i, Location location) {

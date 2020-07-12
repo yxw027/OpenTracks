@@ -1,7 +1,6 @@
 package de.dennisguse.opentracks.io.file.importer;
 
 import android.content.Context;
-import android.util.Log;
 import android.util.Pair;
 
 import androidx.test.core.app.ApplicationProvider;
@@ -20,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import de.dennisguse.opentracks.content.data.TestDataUtil;
 import de.dennisguse.opentracks.content.data.Track;
 import de.dennisguse.opentracks.content.data.TrackPoint;
 import de.dennisguse.opentracks.content.data.Waypoint;
@@ -50,6 +48,10 @@ public class ExportImportTest {
     private static final String TRACK_CATEGORY = "the category";
     private static final String TRACK_DESCRIPTION = "the description";
 
+    private static final double INITIAL_LATITUDE = 37.0;
+    private static final double INITIAL_LONGITUDE = -57.0;
+    private static final double ALTITUDE_INTERVAL = 2.5;
+
     private final List<Waypoint> waypoints = new ArrayList<>();
     private final List<TrackPoint> trackPoints = new ArrayList<>();
 
@@ -58,18 +60,16 @@ public class ExportImportTest {
 
     @Before
     public void setUp() {
-        Pair<Track, TrackPoint[]> track = TestDataUtil.createTrack(trackId, 10);
-        track.first.setIcon(TRACK_ICON);
-        track.first.setCategory(TRACK_CATEGORY);
-        track.first.setDescription(TRACK_DESCRIPTION);
-        contentProviderUtils.insertTrack(track.first);
-        contentProviderUtils.bulkInsertTrackPoint(track.second, track.first.getId());
+        Pair<Track, TrackPoint[]> pair = createTestTrack();
+        pair.first.setId(trackId);
+        contentProviderUtils.insertTrack(pair.first);
+        contentProviderUtils.bulkInsertTrackPoint(pair.second, pair.first.getId());
 
         trackPoints.clear();
-        trackPoints.addAll(Arrays.asList(track.second));
+        trackPoints.addAll(Arrays.asList(pair.second));
 
         for (int i = 0; i < 3; i++) {
-            Waypoint waypoint = new Waypoint(track.second[i].getLocation());
+            Waypoint waypoint = new Waypoint(pair.second[i].getLocation());
             waypoint.setName("the waypoint " + i);
             waypoint.setDescription("the waypoint description " + i);
             waypoint.setCategory("the waypoint category" + i);
@@ -88,13 +88,6 @@ public class ExportImportTest {
     public void tearDown() {
         contentProviderUtils.deleteTrack(context, trackId);
         contentProviderUtils.deleteTrack(context, importTrackId);
-    }
-
-    @LargeTest
-    @Test
-    public void kml_only_track() {
-        // TODO
-        Log.e(TAG, "Test not implemented.");
     }
 
     @LargeTest
@@ -165,34 +158,6 @@ public class ExportImportTest {
 
         // 3. trackpoints
         assertTrackpoints(true, true, true);
-    }
-
-    @LargeTest
-    @Test
-    public void kmz_only_track() {
-        // TODO
-        Log.e(TAG, "Test not implemented.");
-    }
-
-    @LargeTest
-    @Test
-    public void kmz_with_trackdetail() {
-        // TODO
-        Log.e(TAG, "Test not implemented.");
-    }
-
-    @LargeTest
-    @Test
-    public void kmz_with_trackdetail_and_sensordata() {
-        // TODO
-        Log.e(TAG, "Test not implemented.");
-    }
-
-    @LargeTest
-    @Test
-    public void kmz_with_trackdetail_and_sensordata_and_pictures() {
-        // TODO
-        Log.e(TAG, "Test not implemented.");
     }
 
     @LargeTest
@@ -278,5 +243,54 @@ public class ExportImportTest {
                 assertEquals(trackPoint.getPower(), importedTrackPoint.getPower(), 0.01);
             }
         }
+    }
+
+    /**
+     * Generates a track with 3 segments each containing 10 valid {@link TrackPoint}s.
+     */
+    private Pair<Track, TrackPoint[]> createTestTrack() {
+        Track track = new Track();
+        track.setIcon(TRACK_ICON);
+        track.setCategory(TRACK_CATEGORY);
+        track.setDescription(TRACK_DESCRIPTION);
+        track.setName("Test: " + trackId);
+
+        ArrayList<TrackPoint> trackPoints = new ArrayList<>();
+        for (int i = 0; i < 30; i++) {
+            switch (i) {
+                // Signal lost / distance to great
+                case 10:
+                    trackPoints.add(TrackPoint.createPauseWithTime(i + 1));
+                    break;
+
+                // Pause / Resume
+                case 20:
+                    trackPoints.add(TrackPoint.createPauseWithTime(i + 1));
+                case 21:
+                    trackPoints.add(TrackPoint.createResumeWithTime(i + 1));
+                    break;
+
+                default:
+                    trackPoints.add(createTrackPoint(i));
+            }
+        }
+
+        return new Pair<>(track, trackPoints.toArray(new TrackPoint[0]));
+    }
+
+    public static TrackPoint createTrackPoint(int i) {
+        TrackPoint trackPoint = new TrackPoint();
+        trackPoint.setLatitude(INITIAL_LATITUDE + (double) i / 10000.0);
+        trackPoint.setLongitude(INITIAL_LONGITUDE - (double) i / 10000.0);
+        trackPoint.setAccuracy((float) i / 100.0f);
+        trackPoint.setAltitude(i * ALTITUDE_INTERVAL);
+        trackPoint.setTime(i + 1);
+        trackPoint.setSpeed(5f + (i / 10));
+
+        trackPoint.setHeartRate_bpm(100f + i);
+        trackPoint.setCyclingCadence_rpm(200f + i);
+        trackPoint.setCyclingCadence_rpm(300f + i);
+        trackPoint.setPower(400f + i);
+        return trackPoint;
     }
 }
